@@ -108,7 +108,7 @@ int main()
 {
     int n; int a;
     int s;
-    for(int i=0;i<n;i++)
+    for(int i=0;i<n;i=i+1)
     {
         cin>>a;
         s=s+a;
