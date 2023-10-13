@@ -1,120 +1,151 @@
-# My Little Pascal
+# Lab1
+
+## 1. Specificare MLP
 
 
-## 1. Specificarea
+### Atomi
 
-```
-letter           = "a" | "b" | "c" | "d" | "e" | "f" | … | "z";
+- Cuvinte rezervate: int, float, for, while, if, cin, cout, endl, .....
+- ...
+
+
+### EBNF
+
+```C++
+letter           = "a" | ... | "z" | "A" | ... | "Z";
 digit            = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
-identifier       = letter, { letter|digit };
-datatype         = "integer" | "real" | identifier;
 
-number_literal   = ["+"|"-"], (int_literal  |  real_literal);
+identifier       = ("_" | letter), { "_"|letter|digit };
+datatype         = "int" | "float" | "int_arr";
+
+number_literal   = ["+"|"-"], (int_literal | real_literal);
 int_literal      = digits;
 real_literal     = digits, [".", digits ];
 digits           = digit, {digit};
 
 arithm_expr_term = number_literal |  identifier |  ( "(", arithm_expr, ")" );
 
-muldiv_expr      = arithm_expr_term, { ("*"|"/"|"div"|"mod"), arithm_expr_term };
+muldiv_expr      = arithm_expr_term, { ("*"|"/"|"%"), arithm_expr_term };
 addsub_expr      = muldiv_expr, { ("+"|"-"), muldiv_expr };
 arithm_expr      = addsub_expr;
 
-cond_expr        = arithm_expr, ("<"|"<="|">"|">="|"="|"<>"), arithm_expr;
+cond_expr        = arithm_expr, ("<"|"<="|">"|">="|"=="|"!="), arithm_expr;
 
+program_header   = "#include", "<", "iostream", ">", "using", "namespace", "std", ";";
+program_body     = "int", "main", "(", ")", "{", instr_list, "return", "0", ";", "}";
 
-vardecl_block    = "var", var_declaration, {";", var_declaration};
-var_declaration  = identifier, ":", datatype;
+instr_list       =  [instr, {instr}];
+scope            = "{", instr_list, "}";
 
-instr_block      = "begin", [instr, {";", instr}], "end";
+scope_or_single_instr = scope | instr;
 
-instr            = i_attr | i_cond | i_while;
-compound_instr   = (instr | instr_block);
+instr            =  (((i_cin | i_cout | i_attr | vdecl), ";") | i_cond | i_while | i_for), {";"}; // teoretic instr1;;;;; e valid
 
-i_attr           = identifier, ":=", arithm_expr;
-i_cond           = "if", "(", cond_expr, ")", "then", compound_instr,	            ["else", compound_instr];
-i_while          = "while", cond_expr, "do", (instr | instr_block);
-i_for            = "for", identifier, ":=", int_literal, ["to"|"downto"],int_literal, 
-                    "do", compound_instr;
+i_vdecl          = datatype, identifier, ["=", arithm_expr];
+i_attr           = identifier, "=", arithm_expr;
+i_cond           = "if", "(", cond_expr, ")", "", scope_or_single_instr, ["else", scope_or_single_instr];
+i_while          = "while", "(", cond_expr, ")", scope_or_single_instr;
+i_for            = "for", "(", ..., ";", cond_expr, ";", i_attr, ")", scope_or_single_instr;
 
-program          = "program", identifier, [vardecl_block], instr_block, "end", ".";
+i_cin            = "cin", { ">>", identifier };
+i_cout           = "cout", { "<<", (identifier|"endl") };
+
+program          = program_header, program_body;
 ```
 
 ## 2. Exemple surse
 
--	 calculeaza perimetrul si aria cercului de o raza data data
+- calculeaza perimetrul si aria cercului de o raza data data
 
-```
-program cerc;
-var pi, r, p, a:real;
-begin
-    pi:=3.14;
-    readln(r);
-    p :=  2 * pi * r;
-    a := pi *  r * r;
-    writeln(p);
-    writeln(a)
-end.
-```
+```C++
 
--	determina cmmdc a 2 nr naturale
+#include<iostream>
+using namespace std;
 
-```
-program cmmdc;
-var a,b,r:integer;
-begin
-    readln(a,b);
-    while (b<>0) do
-    begin
-        r := a mod b;
-        a := b;
-        b := r;
-    end;
-    writeln(a)
-end.
+int main()
+{
+    float pi = 3.14;
+    float r;
+
+    cin>>r;
+    float perim = 2*pi*r;
+    float aria  = pi*r*r;
+    cout<<perim<<endl<<aria<<endl;
+    return 0;
+}
 ```
 
--	calculeaza suma a n numere citite de la tastatura
-```Pascal
-program sum;
-var n,i,x,s:integer;
-begin
-    s:=0;
-    readln(n);
-    for i:=1 to n do
-    begin
-        readln(x);
-        s:=s+x;
-    end;
-    writeln(s)
-end.
+- determina cmmdc a 2 nr naturale
+
+```C++
+
+#include<iostream>
+using namespace std;
+
+int main()
+{
+    int a; int b;
+    cin>>a>>b;
+    while(b!=0)
+    {
+        int r = a%b;
+        a=b;
+        b=r;
+    }    
+    cout<<a;
+    return 0;
+}
 ```
 
+- calculeaza suma a n numere citite de la tastatura
 
+```C++
 
+#include<iostream>
+using namespace std;
 
-https://web.archive.org/web/20210928043025/http://pascal-central.com/iso7185.html
-
-## 3. Surse care nu compileaza
-
--	nici in MLP nici in limbajul original
-```Pascal
-program eroare1;
-var a,b:integer;
-begin
-    a:=2;
-    b:=3+(a:=a+1);
-end.
+int main()
+{
+    int n; int a;
+    int s;
+    for(int i=0;i<n;i++)
+    {
+        cin>>a;
+        s=s+a;
+    }
+    cout<<s;
+    return 0;
+}
 ```
 
--	compileaza in limbajul original, dar nu si in MLP
+## 3. Surse care contin erori conform MLP
 
-```Pascal
-program eroare2;
-uses math; { MLP nu defineste unitati, nici comentarii >}
-var a,b:integer;
-begin
-    a:=-5; b:=2;
-    a:= min(a,b);
-end.
+- doua erori care sunt in acelasi timp erori in limbajul original
+
+```C++
+#include<iostream>
+using namespace std;
+
+int main()
+{   
+    while(int i=0;i<3;i++) // error: expected ‘)’ before ‘;’ token
+        cout<<i<<endl;
+    return ;  // error: return-statement with no value, in function returning ‘int’
+}
+```
+
+- doua erori conform MLP, dar care nu sunt erori in limbajul original
+
+```C++
+#include<iostream>
+using namespace std;
+
+struct x{int a, b;}; // <-- struct not specified
+
+int main()
+{   
+    for(int i=5;i--;) // for(vdecl; cond; i_attr)
+        cout<<i<<endl;
+    return 0;  
+}
 ```
