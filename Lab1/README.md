@@ -43,9 +43,9 @@ instr            =  (((i_cin | i_cout | i_attr | vdecl), ";") | i_cond | i_while
 
 i_vdecl          = datatype, identifier, ["=", arithm_expr];
 i_attr           = identifier, "=", arithm_expr;
-i_cond           = "if", "(", cond_expr, ")", "", scope_or_single_instr, ["else", scope_or_single_instr];
+i_cond           = "if", "(", cond_expr, ")", scope_or_single_instr, ["else", scope_or_single_instr];
 i_while          = "while", "(", cond_expr, ")", scope_or_single_instr;
-i_for            = "for", "(", ..., ";", cond_expr, ";", i_attr, ")", scope_or_single_instr;
+i_for            = "for", "(", i_vedcl, ";", cond_expr, ";", i_attr, ")", scope_or_single_instr;
 
 i_cin            = "cin", { ">>", identifier };
 i_cout           = "cout", { "<<", (identifier|"endl") };
