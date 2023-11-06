@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 
-namespace Lab2
+namespace Lab3
 {
     internal class AF
     {
@@ -67,6 +66,15 @@ namespace Lab2
 
         private static void Load(AF af, TextReader tr)
         {
+            string unescape(string s)
+            {
+                if (s == "\\n") return "\n";
+                if (s == "\\t") return "\t";
+                if (s == "\\s") return " ";
+                if (s == "\\r") return "\r";
+                return s;
+            }
+
             af.Clear();
             string line;
             while ((line = tr.ReadLine()) != null)
@@ -98,7 +106,7 @@ namespace Lab2
                 {
                     var s = af.GetOrCreateState(items[0]);
                     var d = af.GetOrCreateState(items[2]);
-                    var a = items[1];
+                    var a = unescape(items[1]);
                     s.SetNextState(a, d);
                 }
             }
@@ -123,7 +131,7 @@ namespace Lab2
 
         public bool IsDeterministic { get; private set; }
 
-        public string LongestMatch(string input)
+        public string LongestMatch(string input, bool requireFinalState)
         {
             if (!IsDeterministic)
                 throw new InvalidOperationException("AF must be deterministic");
@@ -131,9 +139,11 @@ namespace Lab2
                 throw new ArgumentNullException(nameof(input));
 
             var state = InitialState;
-            var result = "";
+            var result = requireFinalState ? null : "";
 
-            //if (input == "" && state.IsFinal) result = "";
+
+            if (requireFinalState)
+                if (input == "" && state.IsFinal) result = "";
 
             void nextMatch(ref State s, string str, ref int p)
             {
@@ -144,11 +154,11 @@ namespace Lab2
                     {
                         s = s.Next[a].First();
                         p = p + a.Length;
-                        Console.WriteLine($"Chose {a}");
+                        //Console.WriteLine($"Chose {a}");
                         return;
                     }
                 }
-                Console.WriteLine($"Can't continue");
+                //Console.WriteLine($"Can't continue");
                 s = null;
                 p = 0;
             }
@@ -157,11 +167,27 @@ namespace Lab2
             while (state != null && i < input.Length)
             {
                 nextMatch(ref state, input, ref i);
-                if (state != null) result = input.Substring(0, i);
-
+                if (state != null)
+                {
+                    if (requireFinalState)
+                    {
+                        if (state.IsFinal) result = input.Substring(0, i);
+                    }
+                    else
+                        result = input.Substring(0, i);
+                }
             }
+
+            /*Console.WriteLine($"{state?.Name ?? "null"}");
+            Console.WriteLine($"AFf: '{result}' {state?.IsFinal ?? false} {requireFinalState}");
+
+            if (requireFinalState)
+            {
+                if (state?.IsFinal ?? false)
+                    return result;
+                else return null;
+            }*/
             return result;
-            //return i == input.Length && (state?.IsFinal ?? false);
         }
 
         public bool IsMatch(string input)

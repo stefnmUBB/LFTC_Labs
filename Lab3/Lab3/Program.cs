@@ -1,8 +1,7 @@
-﻿using System;
+﻿using Lab3.Lexic;
+using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 
 /****************
 
@@ -18,13 +17,49 @@ decl_fin   = "#f" stare { stare }.
 
 *******************/
 
-namespace Lab2
+namespace Lab3
 {
     internal class Program
     {
+        private static void Process(string code)
+        {
+            Console.WriteLine("_________________________________________________");
+            var atomExtractor = new AtomExtractor();
+            var tokens = atomExtractor.SplitToTokens(code, out var ex).Where(_ => _.Type != "SPACES").ToList();
+
+            if(ex!=null)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+
+            Console.WriteLine("\nTokens : ");
+            tokens.ForEach(Console.WriteLine);
+
+            var symTable = new SymbolsTable(tokens);
+
+            Console.WriteLine();
+            Console.WriteLine(symTable.TS.Select(_ => (_.Id, _.Text)).AsTable("Id", "Valoare"));
+            Console.WriteLine();
+            Console.WriteLine(symTable.FIP.AsTable("Cod Atom", "Poz. in TS"));
+
+        }
+
         static void Main(string[] args)
         {
-            var f = File.OpenRead(args[0]);
+
+            /*var ea = new AtomExtractor();
+            ea.SplitToTokens("#include", out var err).ForEach(Console.WriteLine);
+            Console.ReadLine();
+            return;*/
+
+            Console.WriteLine("Reserved words and symbols");
+            Console.WriteLine(SymbolsTable.ReservedAtomsList.Select((_, i) => (_, i)).AsTable("Id", "Text"));
+
+            args.Select(File.ReadAllText).ToList().ForEach(Process);
+            Console.WriteLine("\nDone.");
+            Console.ReadLine();
+            return;                        
+
             var af = new AF("Q0 0 Q1\nQ0 1 Q1\n#s Q0\n#f Q1");
 
             Console.WriteLine("Help:");
@@ -86,8 +121,7 @@ namespace Lab2
                     {
                         var expr = command.Length > 1 ? command[1] : "";
                         var result = "";
-
-                        Console.WriteLine(af.LongestMatch(expr));
+                        Console.WriteLine(af.LongestMatch(expr, false));
                         /*
                         for(int i=0;i<=expr.Length;i++)
                         {
