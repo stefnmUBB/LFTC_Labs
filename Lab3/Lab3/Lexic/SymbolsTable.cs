@@ -17,15 +17,29 @@ namespace Lab3.Lexic
         public readonly Symbol[] TS;
         public readonly (int Cod, int TSPos)[] FIP;
 
+        public string Error { get; private set; }
+
         public SymbolsTable(List<Token> tokens)
         {            
             var symbols = new SortedDictionary<string, Symbol>();
             FIP = new (int, int)[tokens.Count];
 
-            var solveQ = new List<(int fipPos, Symbol s)>();
+            var solveQ = new List<(int fipPos, Symbol s)>();                        
 
             for(int i=0;i<tokens.Count;i++)
             {
+                if (i > 0)
+                {                    
+                    if (tokens[i - 1].Type == "CONST" && tokens[i].Type == "ID") 
+                    {
+                        if (tokens[i - 1].Position + tokens[i - 1].Length == tokens[i].Position) 
+                        {
+                            Error = $"Two identifiers next to each other {tokens[i].Position} ({tokens[i].Line}:{tokens[i].Column})";
+                            break;
+                        }
+                    }
+                }
+
                 FIP[i].TSPos = -1;
                 
                 var index = ReservedAtomsList.IndexOf(tokens[i].Text);                
@@ -38,11 +52,18 @@ namespace Lab3.Lexic
 
                     var s = symbols.TryGetValue(tokens[i].Text, out var sym) ? sym : symbols[tokens[i].Text] = new Symbol(tokens[i].Text);
 
-                    FIP[i].Cod = IsNumberConstLiteral(tokens[i]) ? 1
-                        : IsIdentifierName(tokens[i]) ? 0 : throw new ArgumentException($"Invalid token: '{tokens[i]}'");
-
+                    if (IsNumberConstLiteral(tokens[i]))
+                        FIP[i].Cod = 1;
+                    else if (IsIdentifierName(tokens[i]))
+                        FIP[i].Cod = 0;
+                    else
+                    {
+                        Error = $"Invalid token: '{tokens[i]}'";
+                        break;
+                    }
+                    
                     solveQ.Add((i, s));
-                }
+                }                
             }
             int k = 0;            
 

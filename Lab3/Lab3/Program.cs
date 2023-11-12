@@ -29,13 +29,22 @@ namespace Lab3
 
             if(ex!=null)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Error: " + ex.Message);
+                Console.ForegroundColor = ConsoleColor.White;
             }
 
             Console.WriteLine("\nTokens : ");
             tokens.ForEach(Console.WriteLine);
 
             var symTable = new SymbolsTable(tokens);
+
+            if(symTable.Error!=null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error: " + symTable.Error);
+                Console.ForegroundColor = ConsoleColor.White;
+            }
 
             Console.WriteLine();
             Console.WriteLine(symTable.TS.Select(_ => (_.Id, _.Text)).AsTable("Id", "Valoare"));
