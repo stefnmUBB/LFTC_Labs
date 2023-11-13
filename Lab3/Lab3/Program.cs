@@ -15,6 +15,8 @@ tranzitie  = stare atom stare.
 decl_init  = "#s" stare.
 decl_fin   = "#f" stare { stare }.
 
+Ref. const literals: https://en.cppreference.com/book/intro/constants
+
 *******************/
 
 namespace Lab3
